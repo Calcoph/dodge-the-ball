@@ -21,7 +21,7 @@ extern {
 
 #[wasm_bindgen]
 pub struct World {
-    balls: Vec<Ball>,
+    balls: Option<Vec<Ball>>,
 }
 
 #[wasm_bindgen]
@@ -30,16 +30,26 @@ impl World
     pub fn new() -> World
     {
         World{
-            balls: vec![Ball::new(50.0, 10.0, 45.0)],
+            balls: Some(vec![Ball::new(50.0, 10.0, 45.0)]),
         }
     }
 
     pub fn tick(&mut self)
     {
-        for i in &mut self.balls
-        {
-            i.move_tick();
-        }
+        let mut balls = self.balls.take().unwrap();
+        balls.iter_mut()
+            .for_each(|i| i.move_tick());
+            
+        let (mut finalized_balls, mut b): (Vec<Ball>, Vec<Ball>) =
+            balls.into_iter().partition(|i| i.has_reached_end());
+
+
+        // TODO: see if finished_balls have hit any dodgers, instead of throwing them again
+        finalized_balls.iter_mut()
+            .for_each(|i| i.rethrow());
+        
+        b.append(&mut finalized_balls);
+        self.balls = Some(b);
     }
 
     pub fn ceiling_height(&self) -> f64
@@ -53,18 +63,26 @@ impl World
     }
 
     pub fn ball_positions(&self) -> *const f64 {
+        let balls = match &self.balls {
+            Some(x) => x,
+            None => panic!("a")
+        };
         let mut v = Vec::new();
-        for i in &self.balls
+        for i in balls
         {
+            v.push(0.0); // don't question it. It works.
             v.push(i.x);
             v.push(i.y);
         }
-
         v.as_ptr()
     }
 
     pub fn get_ball_amount(&self) -> usize {
-        self.balls.len()
+        let balls = match &self.balls {
+            Some(x) => x,
+            None => panic!("a")
+        };
+        balls.len()
     }
 }
 

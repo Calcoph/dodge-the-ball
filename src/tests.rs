@@ -6,5 +6,6 @@ fn update_ball() {
     
     for _ in 1..10 {
         world.tick();
+        world.ball_positions();
     }
 }

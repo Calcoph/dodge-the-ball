@@ -46,8 +46,7 @@ impl Ball
         self.angle = -self.angle;
     }
 
-    /// returns `true` if it has reached the corridor's end
-    pub fn move_tick(&mut self) -> bool
+    pub fn move_tick(&mut self)
     {
         let cos = self.angle.cos();
         let new_x = self.x + cos*self.speed;
@@ -81,7 +80,15 @@ impl Ball
             new_y = -sin*speed2;
         }
         self.y = new_y;
+    }
 
-        self.x >= CORRIDOR_LENGTH
+    pub fn has_reached_end(&self) -> bool
+    {
+        self.x.clone() >= CORRIDOR_LENGTH
+    }
+
+    pub fn rethrow(&mut self)
+    {
+        self.x = 0.0;
     }
 }
