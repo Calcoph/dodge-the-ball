@@ -2,9 +2,11 @@
 //npm run start in /www
 mod utils;
 mod tests;
-pub mod ball;
+mod ball;
+mod dodger;
 
 use ball::Ball;
+use dodger::Dodger;
 use ball::configuration;
 use wasm_bindgen::prelude::*;
 
@@ -22,6 +24,7 @@ extern {
 #[wasm_bindgen]
 pub struct World {
     balls: Option<Vec<Ball>>,
+    dodgers: Option<Vec<Dodger>>,
 }
 
 #[wasm_bindgen]
@@ -29,13 +32,24 @@ impl World
 {
     pub fn new() -> World
     {
-        World{
-            balls: Some(vec![Ball::new(50.0, 10.0, 45.0)]),
+        World {
+            balls: Some(vec![
+                Ball::new(50.0, 10.0, 45.0),
+                Ball::new(50.0, 10.0, 60.0),
+                Ball::new(50.0, 10.0, 80.0),
+                Ball::new(50.0, 10.0, 30.0),
+                Ball::new(50.0, 10.0, 15.0),
+                ]),
+            dodgers: Some(vec![
+                Dodger::new(50.0, 1.0),
+                Dodger::new(50.0, -1.0),
+            ])
         }
     }
 
     pub fn tick(&mut self)
     {
+        // BALLS BALLS BALLS BALLS BALLS BALLS BALLS BALLS BALLS
         let mut balls = self.balls.take().unwrap();
         balls.iter_mut()
             .for_each(|i| i.move_tick());
@@ -50,6 +64,14 @@ impl World
         
         b.append(&mut finalized_balls);
         self.balls = Some(b);
+
+
+        // DODGERS DODGERS DODGERS DODGERS DODGERS DODGERS DODGERS
+        let mut dodgers = self.dodgers.take().unwrap();
+        dodgers.iter_mut()
+            .for_each(|i| i.move_tick());
+        
+        self.dodgers = Some(dodgers);
     }
 
     pub fn ceiling_height(&self) -> f64
@@ -83,6 +105,27 @@ impl World
             None => panic!("a")
         };
         balls.len()
+    }
+
+    pub fn dodger_positions(&self) -> *const f64 {
+        let dodgers = match &self.dodgers {
+            Some(x) => x,
+            None => panic!("a")
+        };
+        let mut v = Vec::new();
+        for i in dodgers
+        {
+            v.push(i.y);
+        }
+        v.as_ptr()
+    }
+
+    pub fn get_dodger_amount(&self) -> usize {
+        let dodgers = match &self.dodgers {
+            Some(x) => x,
+            None => panic!("a")
+        };
+        dodgers.len()
     }
 }
 

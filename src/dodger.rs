@@ -1,30 +1,34 @@
-use configuration::WALL_HEIGHT;
+use crate::ball::configuration::CEILING_HEIGHT;
 
-impl Ball 
+pub struct Dodger {
+    pub y: f64,
+    speed: f64
+}
+
+impl Dodger
 {
     /// angle is in degrees
-    pub fn new(y_pos: u32, speed: f64, angle: f64) -> Ball
+    pub fn new(y_pos: f64, speed: f64) -> Dodger
     {
-        while angle > 360.0
-        {
-            angle -= 360.0
-        }
-
-        while angle < -360.0
-        {
-            angle += 360.0
-        }
-        angle = angle*2.0*PI/360.0; // degree -> radian
-
-        Ball {
-            y_pos,
+        Dodger {
+            y: y_pos,
             speed,
-            angle
         }
     }
 
-    pub fn hit_wall(&mut self)
-    {
-        self.angle = -self.angle;
+    pub fn change_speed(&self) {
+
+    }
+
+    pub fn move_tick(&mut self) {
+        let mut new_y = self.y + self.speed;
+        if new_y >= CEILING_HEIGHT
+        {
+            new_y = CEILING_HEIGHT
+        } else if new_y <= 0.0
+        {
+            new_y = 0.0
+        }
+        self.y = new_y;
     }
 }
