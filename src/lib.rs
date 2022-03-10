@@ -33,17 +33,8 @@ impl World
     pub fn new() -> World
     {
         World {
-            balls: Some(vec![
-                Ball::new(50.0, 10.0, 45.0),
-                Ball::new(50.0, 10.0, 60.0),
-                Ball::new(50.0, 10.0, 80.0),
-                Ball::new(50.0, 10.0, 30.0),
-                Ball::new(50.0, 10.0, 15.0),
-                ]),
-            dodgers: Some(vec![
-                Dodger::new(150.0, 5.0, 1.0),
-                Dodger::new(150.0, 10.0, -1.0),
-            ])
+            balls: Some(Vec::new()),
+            dodgers: Some(Vec::new())
         }
     }
 
@@ -127,6 +118,21 @@ impl World
             None => panic!("a")
         };
         dodgers.len()
+    }
+
+    /// # Angle is given in degrees
+    pub fn add_ball(&mut self, y_pos: f64, speed: f64, angle: f64)
+    {
+        let mut balls = self.balls.take().unwrap();
+        balls.push(Ball::new(y_pos, speed, angle));
+        self.balls = Some(balls);
+    }
+
+    pub fn add_dodger(&mut self, y_pos: f64, height: f64, max_speed: f64)
+    {
+        let mut dodgers = self.dodgers.take().unwrap();
+        dodgers.push(Dodger::new(y_pos, height, max_speed));
+        self.dodgers = Some(dodgers);
     }
 }
 

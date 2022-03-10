@@ -72,6 +72,61 @@ const draw_dodgers = () => {
     }
 }
 
+const init_world = () => {
+    const balls = [
+        {
+            y_pos: 50,
+            speed: 10,
+            angle: 45
+        },
+        {
+            y_pos: 50,
+            speed: 10,
+            angle: 60
+        },
+        {
+            y_pos: 50,
+            speed: 10,
+            angle: 80
+        },
+        {
+            y_pos: 50,
+            speed: 10,
+            angle: 30
+        },
+        {
+            y_pos: 50,
+            speed: 10,
+            angle: 15
+        },
+    ]
+
+    const dodgers = [
+        {
+            y_pos: 150,
+            height: 5,
+            max_speed: 1
+        },
+        {
+            y_pos: 150,
+            height: 10,
+            max_speed: -1
+        },
+    ]
+
+    for (let i = 0;i<balls.length;i++) {
+        const b = balls[i]
+        world.add_ball(b.y_pos, b.speed, b.angle)
+    }
+    
+    for (let i = 0;i<dodgers.length;i++) {
+        const d = dodgers[i]
+        world.add_dodger(d.y_pos, d.height, d.max_speed)
+    }
+}
+
+init_world()
+
 draw_world()
 draw_dodgers()
 draw_balls()
