@@ -1,11 +1,9 @@
 use std::f64::consts::PI;
 
 use wasm_bindgen::prelude::*;
+use crate::configuration::CEILING_HEIGHT;
 
-pub mod configuration;
-use configuration::CEILING_HEIGHT;
-
-use self::configuration::CORRIDOR_LENGTH;
+use crate::configuration::CORRIDOR_LENGTH;
 
 #[wasm_bindgen]
 pub struct Ball

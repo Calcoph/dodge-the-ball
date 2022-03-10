@@ -1,4 +1,4 @@
-use crate::ball::configuration::CEILING_HEIGHT;
+use crate::configuration::CEILING_HEIGHT;
 
 pub struct Dodger {
     pub y: f64,
