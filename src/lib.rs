@@ -41,8 +41,8 @@ impl World
                 Ball::new(50.0, 10.0, 15.0),
                 ]),
             dodgers: Some(vec![
-                Dodger::new(50.0, 1.0),
-                Dodger::new(50.0, -1.0),
+                Dodger::new(150.0, 5.0, 1.0),
+                Dodger::new(150.0, 10.0, -1.0),
             ])
         }
     }
@@ -115,6 +115,7 @@ impl World
         let mut v = Vec::new();
         for i in dodgers
         {
+            v.push(i.height);
             v.push(i.y);
         }
         v.as_ptr()

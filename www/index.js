@@ -10,6 +10,8 @@ const world = World.new()
 const length = world.corridor_length()
 const height = world.ceiling_height()
 
+canvas.style.marginTop = "200px"
+canvas.style.marginLeft = "400px"
 canvas.height = height
 canvas.width = length
 
@@ -55,12 +57,18 @@ const draw_balls = () => {
 
 const draw_dodgers = () => {
     const dodger_amount = world.get_dodger_amount()
-    const dodgers = new Float64Array(memory.buffer, world.dodger_positions(), dodger_amount)
+    const dodgers = new Float64Array(memory.buffer, world.dodger_positions(), 2*dodger_amount)
 
     ctx.beginPath()
-    const x = 1000-1 // TODO: get this constant from crate::ball::configuration::CEILING_HEIGHT
-    for (let i = 0; i<dodger_amount;i++) {
-        ctx.fillRect(x, dodgers[i], 1, 10)
+    const x = world.corridor_length()-1
+    var height = 0
+    for (let i = 0; i<2*dodger_amount;i++) {
+        if (i%2 == 0) {
+            height = dodgers[i]
+        }
+        else {
+            ctx.fillRect(x, dodgers[i], 1, height)
+        }
     }
 }
 
