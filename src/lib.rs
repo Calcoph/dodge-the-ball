@@ -17,14 +17,17 @@ use wasm_bindgen::prelude::*;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
-extern {
+extern
+{
     fn alert(s: &str);
 }
 
 #[wasm_bindgen]
-pub struct World {
+pub struct World
+{
     balls: Option<Vec<Ball>>,
     dodgers: Option<Vec<Dodger>>,
+    dodger_counters: Vec<u32>,
 }
 
 #[wasm_bindgen]
@@ -34,12 +37,18 @@ impl World
     {
         World {
             balls: Some(Vec::new()),
-            dodgers: Some(Vec::new())
+            dodgers: Some(Vec::new()),
+            dodger_counters: Vec::new()
         }
     }
 
     pub fn tick(&mut self)
     {
+        // DODGERS DODGERS DODGERS DODGERS DODGERS DODGERS DODGERS
+        let mut dodgers = self.dodgers.take().unwrap();
+        dodgers.iter_mut()
+            .for_each(|i| i.move_tick());
+
         // BALLS BALLS BALLS BALLS BALLS BALLS BALLS BALLS BALLS
         let mut balls = self.balls.take().unwrap();
         balls.iter_mut()
@@ -49,19 +58,20 @@ impl World
             balls.into_iter().partition(|i| i.has_reached_end());
 
 
-        // TODO: see if finished_balls have hit any dodgers, instead of throwing them again
+        // TODO: check if the ball hits the dodger midair, instead of seeing if the end position of both collide
         finalized_balls.iter_mut()
-            .for_each(|i| i.rethrow());
+            .for_each(
+                |i|
+                {
+                    dodgers.iter_mut().for_each(
+                        |j| j.collide_check(i)
+                    );
+                    i.rethrow();
+                }
+            );
         
         b.append(&mut finalized_balls);
         self.balls = Some(b);
-
-
-        // DODGERS DODGERS DODGERS DODGERS DODGERS DODGERS DODGERS
-        let mut dodgers = self.dodgers.take().unwrap();
-        dodgers.iter_mut()
-            .for_each(|i| i.move_tick());
-        
         self.dodgers = Some(dodgers);
     }
 
@@ -75,7 +85,8 @@ impl World
         configuration::CORRIDOR_LENGTH
     }
 
-    pub fn ball_positions(&self) -> *const f64 {
+    pub fn ball_positions(&self) -> *const f64
+    {
         let balls = match &self.balls {
             Some(x) => x,
             None => panic!("a")
@@ -90,7 +101,8 @@ impl World
         v.as_ptr()
     }
 
-    pub fn get_ball_amount(&self) -> usize {
+    pub fn get_ball_amount(&self) -> usize
+    {
         let balls = match &self.balls {
             Some(x) => x,
             None => panic!("a")
@@ -98,7 +110,8 @@ impl World
         balls.len()
     }
 
-    pub fn dodger_positions(&self) -> *const f64 {
+    pub fn dodger_positions(&self) -> *const f64
+    {
         let dodgers = match &self.dodgers {
             Some(x) => x,
             None => panic!("a")
@@ -112,7 +125,8 @@ impl World
         v.as_ptr()
     }
 
-    pub fn get_dodger_amount(&self) -> usize {
+    pub fn get_dodger_amount(&self) -> usize
+    {
         let dodgers = match &self.dodgers {
             Some(x) => x,
             None => panic!("a")
@@ -133,6 +147,23 @@ impl World
         let mut dodgers = self.dodgers.take().unwrap();
         dodgers.push(Dodger::new(y_pos, height, max_speed));
         self.dodgers = Some(dodgers);
+    }
+
+    #[no_mangle]
+    pub fn get_counters(&mut self) -> *const u32
+    {
+        let dodgers = match &self.dodgers {
+            Some(x) => x,
+            None => panic!("a")
+        };
+
+        let mut v = Vec::new();
+        for i in dodgers
+        {
+            v.push(i.times_hit);
+        }
+        
+        v.as_ptr()
     }
 }
 
