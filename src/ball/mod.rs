@@ -68,7 +68,7 @@ impl Ball
             let y_diff = CEILING_HEIGHT - self.y;
             let speed2 = speed-(y_diff/sin);
             self.hit_wall();
-            new_y = CEILING_HEIGHT+sin*speed2;  // +sin because it would be -new_sin. but new_sin = -sin because new_angle = -angle        
+            new_y = CEILING_HEIGHT-(sin*speed2).abs();
         } else if new_y <= 0.0
         {
             // the ball has reached the floor. split the speed in 2 parts, one before hitting and the other after hitting
