@@ -5,6 +5,7 @@ mod tests;
 mod ball;
 mod dodger;
 mod configuration;
+mod ai;
 
 use ball::Ball;
 use dodger::Dodger;
@@ -27,7 +28,6 @@ pub struct World
 {
     balls: Option<Vec<Ball>>,
     dodgers: Option<Vec<Dodger>>,
-    dodger_counters: Vec<u32>,
 }
 
 #[wasm_bindgen]
@@ -38,7 +38,6 @@ impl World
         World {
             balls: Some(Vec::new()),
             dodgers: Some(Vec::new()),
-            dodger_counters: Vec::new()
         }
     }
 
