@@ -11,6 +11,7 @@ pub struct NeuralLayer { // TODO remove 'pub'
 }
 
 struct Neuron {
+    bias: f64,
     weights: Vec<f64>
 }
 
@@ -73,13 +74,14 @@ impl Neuron {
         }
 
         Neuron {
+            bias: random_range(-10.0, 10.0),
             weights
         }
     }
 
     fn get_outputs(&self, input: f64) -> Vec<f64>{
         self.weights.iter()
-            .map(|i| i*input)
+            .map(|i| i*(input+self.bias))
             .collect()
     }
 }
