@@ -1,7 +1,10 @@
+use std::collections::VecDeque;
+
 use crate::configuration::CEILING_HEIGHT;
-use crate::ball::Ball;
+use crate::ball::{Ball, BallMemory};
 use crate::ai::Brain;
 use js_sys;
+use wasm_bindgen::memory;
 
 pub struct Dodger {
     pub y: f64,
@@ -39,7 +42,7 @@ impl Dodger
         }
     }
 
-    pub fn move_tick(&mut self) {
+    pub fn move_tick(&mut self, memory: &VecDeque<Vec<f64>>) {
         self.change_speed();
 
         let mut new_y = self.y + self.speed;

@@ -14,7 +14,6 @@ pub struct Ball
     angle: f64
 }
 
-#[wasm_bindgen]
 impl Ball 
 {
     /// angle is in degrees
@@ -89,4 +88,16 @@ impl Ball
     {
         self.x = 0.0;
     }
+
+    pub fn get_memory(&self) -> BallMemory {
+        BallMemory {
+            x: self.x,
+            y: self.y
+        }
+    }
+}
+
+pub struct BallMemory {
+    pub x: f64,
+    pub y: f64
 }

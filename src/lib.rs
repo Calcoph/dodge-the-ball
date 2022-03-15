@@ -7,9 +7,11 @@ mod dodger;
 mod configuration;
 mod ai;
 
-use ball::Ball;
-use dodger::Dodger;
+use std::collections::VecDeque;
 use wasm_bindgen::prelude::*;
+
+use ball::{Ball, BallMemory};
+use dodger::Dodger;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -28,6 +30,7 @@ pub struct World
 {
     balls: Option<Vec<Ball>>,
     dodgers: Option<Vec<Dodger>>,
+    memory: VecDeque<Vec<f64>>,
 }
 
 #[wasm_bindgen]
@@ -35,10 +38,26 @@ impl World
 {
     pub fn new() -> World
     {
+        let memory_size = 3; // TODO: dont hardcode this
+        let memory = World::init_memory(memory_size);
         World {
             balls: Some(Vec::new()),
             dodgers: Some(Vec::new()),
+            memory,
         }
+    }
+
+    fn init_memory(memory_size: usize) -> VecDeque<Vec<f64>> {
+        let mut memory = VecDeque::new();
+        for _ in 0..memory_size {
+            let mut moment = Vec::new();
+            for _ in 0..configuration::DIVISIONS {
+                moment.push(0.0);
+            }
+            memory.push_front(moment);
+        }
+
+        memory
     }
 
     pub fn tick(&mut self)
@@ -46,13 +65,18 @@ impl World
         // DODGERS DODGERS DODGERS DODGERS DODGERS DODGERS DODGERS
         let mut dodgers = self.dodgers.take().unwrap();
         dodgers.iter_mut()
-            .for_each(|i| i.move_tick());
+            .for_each(|i| i.move_tick(&self.memory));
 
         // BALLS BALLS BALLS BALLS BALLS BALLS BALLS BALLS BALLS
         let mut balls = self.balls.take().unwrap();
-        balls.iter_mut()
-            .for_each(|i| i.move_tick());
-            
+        let memories: Vec<BallMemory> = balls.iter_mut()
+            .map(|i| {
+                i.move_tick();
+                i.get_memory()
+            }).collect();
+        
+        self.push_memories(memories);
+
         let (mut finalized_balls, mut b): (Vec<Ball>, Vec<Ball>) =
             balls.into_iter().partition(|i| i.has_reached_end());
 
@@ -148,7 +172,6 @@ impl World
         self.dodgers = Some(dodgers);
     }
 
-    #[no_mangle]
     pub fn get_counters(&mut self) -> *const u32
     {
         let dodgers = match &self.dodgers {
@@ -163,6 +186,42 @@ impl World
         }
         
         v.as_ptr()
+    }
+
+    /// ticks the memory buffer
+    fn push_memories(&mut self, new_memories: Vec<BallMemory>) {
+        self.memory.pop_back();
+        self.memory.push_front(
+            World::moment_from_ballmemories(new_memories)
+        );
+    }
+
+    /// Divides the height of the corridor into sections
+    /// if a section contains a ballmemory its value will be its distance to the dodger.
+    /// Where 1 is closest and 0.00(..)1 is farthest.
+    /// If there is more than 1 ball in the same section, only the one that is closest appears.
+    fn moment_from_ballmemories(ballmemories: Vec<BallMemory>) -> Vec<f64> {
+        let mut new_memory = Vec::new();
+        for _ in 0..configuration::DIVISIONS {
+            new_memory.push(0.0)
+        }
+
+        ballmemories.iter()
+            .map(|i| (World::get_section(i.y), i.x/configuration::CORRIDOR_LENGTH))
+            .for_each(|(position, value)| {
+                new_memory[position] = f64::max(value, new_memory[position])
+            });
+
+        new_memory
+    }
+
+    fn get_section(height: f64) -> usize {
+        let mut pos = (height/configuration::DIVISION_HEIGHT).floor() as usize;
+        if pos == 200 {
+            pos = 199 // because apparently this is not as rare as I thought it would be
+        }
+
+        pos
     }
 }
 

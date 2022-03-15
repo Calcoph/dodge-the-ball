@@ -8,6 +8,7 @@ const COLOR = "#000000"
 const canvas = document.getElementById("dodge-the-ball-canvas");
 const counters = document.getElementById("counters-div")
 const world = World.new()
+let tick = 0
 const length = world.corridor_length()
 const height = world.ceiling_height()
 
@@ -20,6 +21,7 @@ const ctx = canvas.getContext("2d")
 
 const renderLoop = () => {
     world.tick()
+    console.log(tick++)
 
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     draw_world()
